@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>Homework for March 29, 2021 - Reagen Schulenberg</title>
+<meta property="og:title" content="Homework for March 29, 2021 - Reagen Schulenberg">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/reagenschulenberg">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/itsreagennn">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">4 min read</span>
+    
+
+    <h1 class="article-title">Homework for March 29, 2021</h1>
+
+    
+    <span class="article-date">2021-03-29</span>
+    
+
+    <div class="article-content">
+      
+<script src="/2021/03/29/homework-for-march-29-2021/index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>I am working with data that needs to be fixed in order to use it in creating graphs. First I am going to load in my data and name it.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.0.5     ✓ dplyr   1.0.3
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggalt)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;ggalt&#39;:
+##   method                  from   
+##   grid.draw.absoluteGrob  ggplot2
+##   grobHeight.absoluteGrob ggplot2
+##   grobWidth.absoluteGrob  ggplot2
+##   grobX.absoluteGrob      ggplot2
+##   grobY.absoluteGrob      ggplot2</code></pre>
+<pre class="r"><code>badlogs &lt;- read_csv(&quot;badfootballlogs19.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_double(),
+##   Date = col_character(),
+##   HomeAway = col_character(),
+##   Opponent = col_character(),
+##   Result = col_character(),
+##   TeamFull = col_character(),
+##   TeamURL = col_character(),
+##   Team = col_character(),
+##   Conference = col_character()
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<p>I need to clean up my text. So, I separated the Result column into two different ones, the outcome (W or L) and the actual score of the game. Then I needed to get rid of the parentheses around the score. Lastly, I needed to separate the score into two different colums, the TeamScore and the Opponent score.</p>
+<p>I then used mutate to create a new dataframe, the differential between the TeamScore and OpponentScore.</p>
+<pre class="r"><code>badlogs %&gt;% separate(Result, into=c(&quot;Outcome&quot;, &quot;Score&quot;), sep=&quot; &quot;) %&gt;% mutate(Score=gsub(&quot;)&quot;, &quot;&quot;, Score)) %&gt;% mutate(Score=gsub(&quot;\\(&quot;, &quot;&quot;, Score)) %&gt;%
+  separate(Score, into=c(&quot;TeamScore&quot;, &quot;OpponentScore&quot;), sep=&quot;-&quot;) %&gt;% mutate(TeamScore = as.numeric(TeamScore), OpponentScore = as.numeric(OpponentScore)) %&gt;%
+  mutate(
+    Differential = TeamScore - OpponentScore)</code></pre>
+<pre><code>## # A tibble: 1,662 x 54
+##     Game Date  HomeAway Opponent Outcome TeamScore OpponentScore PassingCmp
+##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;       &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+##  1     1 8/24… N        Miami (… W              24            20         17
+##  2     2 9/7/… &lt;NA&gt;     Tenness… W              45             0         30
+##  3     3 9/14… @        Kentucky W              29            21         21
+##  4     4 9/21… &lt;NA&gt;     Tenness… W              34             3         24
+##  5     5 9/28… &lt;NA&gt;     Towson   W              38             0         24
+##  6     6 10/5… &lt;NA&gt;     Auburn   W              24            13         25
+##  7     7 10/1… @        Louisia… L              28            42         24
+##  8     8 10/1… @        South C… W              38            27         21
+##  9     9 11/2… N        Georgia  L              17            24         21
+## 10    10 11/9… &lt;NA&gt;     Vanderb… W              56             0         27
+## # … with 1,652 more rows, and 46 more variables: PassingAtt &lt;dbl&gt;,
+## #   PassingPct &lt;dbl&gt;, PassingYds &lt;dbl&gt;, PassingTD &lt;dbl&gt;, RushingAtt &lt;dbl&gt;,
+## #   RushingYds &lt;dbl&gt;, RushingAvg &lt;dbl&gt;, RushingTD &lt;dbl&gt;, OffensivePlays &lt;dbl&gt;,
+## #   OffensiveYards &lt;dbl&gt;, OffenseAvg &lt;dbl&gt;, FirstDownPass &lt;dbl&gt;,
+## #   FirstDownRush &lt;dbl&gt;, FirstDownPen &lt;dbl&gt;, FirstDownTotal &lt;dbl&gt;,
+## #   Penalties &lt;dbl&gt;, PenaltyYds &lt;dbl&gt;, Fumbles &lt;dbl&gt;, Interceptions &lt;dbl&gt;,
+## #   TotalTurnovers &lt;dbl&gt;, TeamFull &lt;chr&gt;, TeamURL &lt;chr&gt;, DefPassingCmp &lt;dbl&gt;,
+## #   DefPassingAtt &lt;dbl&gt;, DefPassingPct &lt;dbl&gt;, DefPassingYds &lt;dbl&gt;,
+## #   DefPassingTD &lt;dbl&gt;, DefRushingAtt &lt;dbl&gt;, DefRushingYds &lt;dbl&gt;,
+## #   DefRushingAvg &lt;dbl&gt;, DefRushingTD &lt;dbl&gt;, DefPlays &lt;dbl&gt;, DefYards &lt;dbl&gt;,
+## #   DefAvg &lt;dbl&gt;, DefFirstDownPass &lt;dbl&gt;, DefFirstDownRush &lt;dbl&gt;,
+## #   DefFirstDownPen &lt;dbl&gt;, DefFirstDownTotal &lt;dbl&gt;, DefPenalties &lt;dbl&gt;,
+## #   DefPenaltyYds &lt;dbl&gt;, DefFumbles &lt;dbl&gt;, DefInterceptions &lt;dbl&gt;,
+## #   DefTotalTurnovers &lt;dbl&gt;, Team &lt;chr&gt;, Conference &lt;chr&gt;, Differential &lt;dbl&gt;</code></pre>
+<p>Created a new dataframe called newbadlogs for all of the new changes.</p>
+<pre class="r"><code>newbadlogs &lt;- badlogs %&gt;% separate(Result, into=c(&quot;Outcome&quot;, &quot;Score&quot;), sep=&quot; &quot;) %&gt;% mutate(Score=gsub(&quot;)&quot;, &quot;&quot;, Score)) %&gt;% mutate(Score=gsub(&quot;\\(&quot;, &quot;&quot;, Score)) %&gt;%
+  separate(Score, into=c(&quot;TeamScore&quot;, &quot;OpponentScore&quot;), sep=&quot;-&quot;) %&gt;% mutate(TeamScore = as.numeric(TeamScore), OpponentScore = as.numeric(OpponentScore)) %&gt;%
+  mutate(
+    Differential = TeamScore - OpponentScore)</code></pre>
+<p>Then, I created a new data set called worstgames where the score differential is greater or equal to 65.</p>
+<pre class="r"><code>worstgames &lt;- newbadlogs %&gt;% filter(Differential &gt;= 65)</code></pre>
+<p>I put the newbadlogs into it’s own scatterplot with TeamScore on x-axis, OpponentScore on the y-axis. I did the same with the worstgames data set and made those red. Then, I created a circle to emphasize the worstgames data.</p>
+<pre class="r"><code>ggplot() + geom_point(data=newbadlogs, aes(x=TeamScore, y=OpponentScore)) + geom_point(data=worstgames, aes(x=TeamScore, y=OpponentScore, color=&quot;red&quot;)) + geom_encircle(data=worstgames, aes(x=TeamScore, y=OpponentScore), s_shape=0.6, expand=0.05, colour=&quot;blue&quot;) +
+  labs(title=&quot;Those differentials are pretty bad.&quot;, subtitle=&quot;There were 5 games that lost by more than 65. Welp.&quot;, caption= &quot;Source: Sports Reference | Author: Reagen Schulenberg&quot;, x=&quot;TeamScore&quot;, y=&quot;OpponentScore&quot;) +
+  theme_minimal ()</code></pre>
+<p><img src="/2021/03/29/homework-for-march-29-2021/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+
