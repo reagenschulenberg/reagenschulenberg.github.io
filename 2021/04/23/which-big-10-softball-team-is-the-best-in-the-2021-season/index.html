@@ -76,8 +76,9 @@
 <script src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/header-attrs/header-attrs.js"></script>
 
 
-<p>As someone who has grown up around the sport of softball, I’ve watched hundreds of games. My sister played softball in college and little did I know that years later I would be working for the University of Nebraska-Lincoln’s softball team. I joined the digital media team at the athletic department in October of 2019. Going into my second year, I noticed that I was invited to a softball meeting right before school started. I didn’t necessarily know that I was assigned a new sport, but I was all in for it!</p>
-<p>Working with the softball team has been an awesome experience. This season has been especially unique since they are only playing other Big 10 teams. I have watched every Nebraska softball game thus far in this season, and I wanted to see how they compare to the other Big 10 teams that they have played and won’t get the chance to play. But not only see where Nebraska stood, but see who the best team is possibly in the Big 10. To analyze this, I wanted to look at three different areas: hitting, pitching, and fielding.</p>
+<p>As someone who has grown up around the sport of softball, I’ve watched hundreds of games. My sister played softball in college and little did I know that years later I would be working for the University of Nebraska-Lincoln’s softball team. I joined the digital media team at the athletic department in October of 2019. Going into my second year, I noticed that I was invited to a softball meeting right before school started. I didn’t necessarily know what to expect working for softball, but I was all in for it!</p>
+<p>Working with the softball team has been an awesome experience. This season has been especially unique since they are only playing other Big 10 teams. I have worked every Nebraska softball game this far this season and wanted to see how they compare to the other Big 10 teams. But not only see where Nebraska stood, but see who the best Big 10 team is this 2021 season.</p>
+<p>To analyze this, I wanted to look at three different areas: hitting, pitching, and fielding.</p>
 <pre class="r"><code>library(tidyverse)
 library(gt)
 library(ggrepel)</code></pre>
@@ -102,8 +103,10 @@ labs(
     plot.subtitle = element_text(size=10))</code></pre>
 <p><img src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 The blue line is the national batting average this season.</p>
-<p>Here are the top observations I take from this. First, Penn State can’t hit for crap. But Michigan, Illinois, and Northwestern have been about or above average almost all season. Us at good old Nebraska U, we have been up and down all season. There are a lot of teams who have stayed pretty steady over the course of the 2021 conference play and some who are a little bit more up and down.</p>
-<p>Now, I have my eye on who to look out for. Let’s look at some total season stats for hitting. I added up the total doubles, triples, and home runs for each team.</p>
+<p>Here are the top observations I take from this.</p>
+<p>First, Penn State can’t hit for crap. But Michigan, Illinois, and Northwestern have been about or above average almost all season. Us at good old Nebraska U, we have been up and down all season. There are a lot of teams who have stayed pretty steady over the course of the 2021 conference play and some who are a little bit more up and down.</p>
+<p>Now, I have my eye on who to look out for.</p>
+<p>Let’s look at some total season stats for hitting. I added up the total doubles, triples, and home runs for each team.</p>
 <pre class="r"><code>stackeddata &lt;- softball %&gt;% 
   pivot_longer(cols = c(&quot;2B&quot;, &quot;3B&quot;, &quot;HR&quot;), names_to=&quot;Type&quot;, values_to=&quot;Total&quot;) 
 
@@ -112,19 +115,19 @@ ggplot(stackeddata, aes(x=reorder(Team, Total), weight=Total, fill=Type)) +
   coord_flip() +
   labs(
     title= &quot;Nebraska is a close second, right behind Northwestern&quot;,
-    subtitle= &quot;The teams I had my eye from their hitting percentage are in the top five.&quot;,
-    caption= &quot;Source: Big 10 School 2021 Softball Stats | By Reagen Schulenberg&quot;, x=&quot;Totals&quot;, y=&quot;Team&quot;) +
+    subtitle= &quot;The top five schools are no surprise.&quot;,
+    caption= &quot;Source: Big 10 School 2021 Softball Stats | By Reagen Schulenberg&quot;, x=&quot;Team&quot;, y=&quot;Totals&quot;) +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = &quot;bold&quot;),
     axis.title = element_text(size = 8), 
     plot.subtitle = element_text(size=10)) </code></pre>
 <p><img src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<p>Although Nebraska had lots of peaks and valleys when it came to their hitting percentage, they come out second when it comes to their totals in hitting this season. I then notice that Northwestern comes out on top, with Illinois, Michigan, and Minnesota following close behind in third through sixth.
-I see Penn State at the bottom again - which isn’t a surprise based on their hitting percentage.
-Minnesota has the most home runs, but you can’t always win games just by hitting bombs.
-So now, for someone who has a pretty average hitting percentage based on the national average, stands at the top of this graph. Based on this, I would say that the more steady your batting average is, the more likely you will to have higher totals in overall hits.</p>
-<p>A pitcher is a vital role in a softball. They control pitching to the other team. Let’s look at how pitching as affected these Big 10 teams this season.</p>
+<p>Although Nebraska had lots of peaks and valleys when it came to their hitting percentage, they come out second when it comes to their totals in hitting this season. I then notice that Northwestern comes out on top, with Illinois, Michigan, and Minnesota following close behind in third through sixth.</p>
+<p>I see Penn State at the bottom again - which isn’t a surprise based on their hitting percentage.</p>
+<p>Minnesota has the most home runs, but you can’t always win games just by hitting bombs.</p>
+<p>Based on this, I would say that the higher your batting average is, the more likely you will to have higher totals in overall hits.</p>
+<p>A pitcher is a vital role in a softball. Let’s look at how pitching as affected these Big 10 teams this season.</p>
 <pre class="r"><code>pstats &lt;- pitching %&gt;%
   group_by(Team) %&gt;%
   summarize(
@@ -149,7 +152,7 @@ geom_text_repel(data=pstats, aes(x=sumSO, y=sumHits, label=Team)) +
     plot.subtitle = element_text(size=10))</code></pre>
 <p><img src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>When I made this graph and it spit out the output, my eyes went directly to Michigan. They are obviously a huge outlier when it comes to pitching. They pitch a TON of strikeouts, almost 100 more than any other Big 10 Team. But, you notice that they don’t have a ton of hits compared to the rest of the Big 10. Lastly, their dot is small meaning that they only allow one earned run per game.</p>
-<p>I notice that Nebraska falls somehwere in the middle, but closer to the left side of the graph. Two teams that I’ve been keeping an eye on, Northwestern and Illinois, are both in the center of the graph meaning their total hits and total strikeouts are about 50/50. Not to mention that the size of their dot is fairly small, meaning that their pitchers don’t give up very many runs.</p>
+<p>I notice that Nebraska falls somewhere in the middle, but closer to the left side of the graph. Two teams that I’ve been keeping an eye on, Northwestern and Illinois, are both in the center of the graph meaning their total hits and total strikeouts are about 50/50. Not to mention that the size of their dot is fairly small, meaning that their pitchers don’t give up very many runs.</p>
 <p>My eye still remains on Northwestern, Illinois, and Michigan.</p>
 <p>Lastly, let’s look at fielding.</p>
 <p>Errors are huge when it comes to fielding. You can’t expect to have a great team and have a ton of fielding errors. So I wanted to look at the Big 10 teams who have less than 25 errors on the season.</p>
@@ -206,7 +209,7 @@ gt() %&gt;%
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#ejnwrhbwha .gt_table {
+#vtxcxpkxkj .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -231,7 +234,7 @@ gt() %&gt;%
   border-left-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_heading {
+#vtxcxpkxkj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -243,7 +246,7 @@ gt() %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_title {
+#vtxcxpkxkj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -253,7 +256,7 @@ gt() %&gt;%
   border-bottom-width: 0;
 }
 
-#ejnwrhbwha .gt_subtitle {
+#vtxcxpkxkj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -263,13 +266,13 @@ gt() %&gt;%
   border-top-width: 0;
 }
 
-#ejnwrhbwha .gt_bottom_border {
+#vtxcxpkxkj .gt_bottom_border {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_col_headings {
+#vtxcxpkxkj .gt_col_headings {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -284,7 +287,7 @@ gt() %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_col_heading {
+#vtxcxpkxkj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -304,7 +307,7 @@ gt() %&gt;%
   overflow-x: hidden;
 }
 
-#ejnwrhbwha .gt_column_spanner_outer {
+#vtxcxpkxkj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -316,15 +319,15 @@ gt() %&gt;%
   padding-right: 4px;
 }
 
-#ejnwrhbwha .gt_column_spanner_outer:first-child {
+#vtxcxpkxkj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ejnwrhbwha .gt_column_spanner_outer:last-child {
+#vtxcxpkxkj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ejnwrhbwha .gt_column_spanner {
+#vtxcxpkxkj .gt_column_spanner {
   border-bottom-style: none;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -336,7 +339,7 @@ gt() %&gt;%
   width: 100%;
 }
 
-#ejnwrhbwha .gt_group_heading {
+#vtxcxpkxkj .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #FFFFFF;
@@ -358,7 +361,7 @@ gt() %&gt;%
   vertical-align: middle;
 }
 
-#ejnwrhbwha .gt_empty_group_heading {
+#vtxcxpkxkj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -373,15 +376,15 @@ gt() %&gt;%
   vertical-align: middle;
 }
 
-#ejnwrhbwha .gt_from_md > :first-child {
+#vtxcxpkxkj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ejnwrhbwha .gt_from_md > :last-child {
+#vtxcxpkxkj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ejnwrhbwha .gt_row {
+#vtxcxpkxkj .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -400,7 +403,7 @@ gt() %&gt;%
   overflow-x: hidden;
 }
 
-#ejnwrhbwha .gt_stub {
+#vtxcxpkxkj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -412,7 +415,7 @@ gt() %&gt;%
   padding-left: 12px;
 }
 
-#ejnwrhbwha .gt_summary_row {
+#vtxcxpkxkj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -422,7 +425,7 @@ gt() %&gt;%
   padding-right: 5px;
 }
 
-#ejnwrhbwha .gt_first_summary_row {
+#vtxcxpkxkj .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -432,7 +435,7 @@ gt() %&gt;%
   border-top-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_grand_summary_row {
+#vtxcxpkxkj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -442,7 +445,7 @@ gt() %&gt;%
   padding-right: 5px;
 }
 
-#ejnwrhbwha .gt_first_grand_summary_row {
+#vtxcxpkxkj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -452,11 +455,11 @@ gt() %&gt;%
   border-top-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_striped {
+#vtxcxpkxkj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ejnwrhbwha .gt_table_body {
+#vtxcxpkxkj .gt_table_body {
   border-top-style: none;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -465,7 +468,7 @@ gt() %&gt;%
   border-bottom-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_footnotes {
+#vtxcxpkxkj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -479,13 +482,13 @@ gt() %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_footnote {
+#vtxcxpkxkj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#ejnwrhbwha .gt_sourcenotes {
+#vtxcxpkxkj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -499,46 +502,46 @@ gt() %&gt;%
   border-right-color: #D3D3D3;
 }
 
-#ejnwrhbwha .gt_sourcenote {
+#vtxcxpkxkj .gt_sourcenote {
   font-size: 90%;
   padding: 4px;
 }
 
-#ejnwrhbwha .gt_left {
+#vtxcxpkxkj .gt_left {
   text-align: left;
 }
 
-#ejnwrhbwha .gt_center {
+#vtxcxpkxkj .gt_center {
   text-align: center;
 }
 
-#ejnwrhbwha .gt_right {
+#vtxcxpkxkj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ejnwrhbwha .gt_font_normal {
+#vtxcxpkxkj .gt_font_normal {
   font-weight: normal;
 }
 
-#ejnwrhbwha .gt_font_bold {
+#vtxcxpkxkj .gt_font_bold {
   font-weight: bold;
 }
 
-#ejnwrhbwha .gt_font_italic {
+#vtxcxpkxkj .gt_font_italic {
   font-style: italic;
 }
 
-#ejnwrhbwha .gt_super {
+#vtxcxpkxkj .gt_super {
   font-size: 65%;
 }
 
-#ejnwrhbwha .gt_footnote_marks {
+#vtxcxpkxkj .gt_footnote_marks {
   font-style: italic;
   font-size: 65%;
 }
 </style>
-<div id="ejnwrhbwha" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+<div id="vtxcxpkxkj" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
   <thead class="gt_header">
     <tr>
       <th colspan="5" class="gt_heading gt_title gt_font_normal" style="color: black; text-align: left; font-weight: bold;">Northwestern still at the top - Michigan right behind</th>
@@ -611,7 +614,7 @@ gt() %&gt;%
   
 </table></div>
 <p>Nebraska falls in the middle, yet again. My top guesses were that I would see Northwestern, Michigan, and Illinois at the top of this table. However, I see that Illinois isn’t even on this table, meaning that they make too many errors.
-So, that leaves me with Michigan and Northwestern still fighting for the top. Coincidentally, they have the same number of wins. Northwestern’s hitting percentage is only higher by 0.003 and they also have the same number of fielding errors.</p>
+So, that leaves me with Michigan and Northwestern still fighting for the top. Coincidentally, they have the same number of wins. Northwestern’s fielding percentage is only higher by 0.003 and they also have the same number of fielding errors.</p>
 <p>To take an ending look at these top two teams:</p>
 <p>Northwestern had the highest total number of hits overall. Their pitchers throw an average amount of strikeouts along with overall hits. Their average ERA circle was decently small, meaning that on average, they don’t give up many runs. Finally, they’re at the top of the fielding table, with the highest fielding percentage and lowest number of errors.</p>
 <p>Michigan’s batting average per game is around the national average line or above. They ranked fourth out of all the Big 10 teams in the total number of hits. They were a huge outlier when it comes to their pitching. Their dot was the smallest on the graph, and way far right, meaning that they strikeout a lot of batters, but don’t have that many hits. They trail Northwestern barley in their fielding percentage and have the same amount of errors.</p>
