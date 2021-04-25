@@ -22,6 +22,11 @@
 
 
 
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
 <link rel="stylesheet" href="/css/fonts.css" media="all">
 <link rel="stylesheet" href="/css/main.css" media="all">
 
@@ -57,7 +62,7 @@
 
   <article class="article">
     
-    <span class="article-duration">1 min read</span>
+    <span class="article-duration">11 min read</span>
     
 
     <h1 class="article-title">Which Big 10 softball team is the best in the 2021 season?</h1>
@@ -71,7 +76,548 @@
 <script src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/header-attrs/header-attrs.js"></script>
 
 
-<p>Here is where I’m going to type my project. Yay! Summer is near.</p>
+<p>As someone who has grown up around the sport of softball, I’ve watched hundreds of games. My sister played softball in college and little did I know that years later I would be working for the University of Nebraska-Lincoln’s softball team. I joined the digital media team at the athletic department in October of 2019. Going into my second year, I noticed that I was invited to a softball meeting right before school started. I didn’t necessarily know that I was assigned a new sport, but I was all in for it!</p>
+<p>Working with the softball team has been an awesome experience. This season has been especially unique since they are only playing other Big 10 teams. I have watched every Nebraska softball game thus far in this season, and I wanted to see how they compare to the other Big 10 teams that they have played and won’t get the chance to play. But not only see where Nebraska stood, but see who the best team is possibly in the Big 10. To analyze this, I wanted to look at three different areas: hitting, pitching, and fielding.</p>
+<pre class="r"><code>library(tidyverse)
+library(gt)
+library(ggrepel)</code></pre>
+<pre class="r"><code>hitting &lt;- read_csv(&quot;big10hitting.csv&quot;)
+pitching &lt;- read_csv(&quot;pitching.csv&quot;)
+softball &lt;- read_csv(&quot;softballstackedbar.csv&quot;)
+fielding &lt;- read_csv(&quot;softballtable.csv&quot;)</code></pre>
+<p>First, let’s take a look at hitting.</p>
+<pre class="r"><code>ggplot() + 
+  geom_hline(yintercept=.249, color=&quot;blue&quot;) +
+  geom_line(data=hitting, aes(x=Game, y=HittingPCT, group=Team)) +
+  scale_y_continuous(limits = c(0, .6)) + 
+  facet_wrap(~Team) +
+labs(
+    title= &quot;Multiple teams in the Big 10 hitting around average&quot;, 
+    subtitle= &quot;The Big 10 has been all over the board in hitting percentage in the 2021 season. \n (Ohio State, Minnesota, &amp; Iowa not included)&quot;,
+    caption= &quot;Source: Big 10 School 2021 Softball Stats | By Reagen Schulenberg&quot;, x=&quot;Game&quot;, y=&quot;Hitting Percentage&quot;) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10))</code></pre>
+<p><img src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+The blue line is the national batting average this season.</p>
+<p>Here are the top observations I take from this. First, Penn State can’t hit for crap. But Michigan, Illinois, and Northwestern have been about or above average almost all season. Us at good old Nebraska U, we have been up and down all season. There are a lot of teams who have stayed pretty steady over the course of the 2021 conference play and some who are a little bit more up and down.</p>
+<p>Now, I have my eye on who to look out for. Let’s look at some total season stats for hitting. I added up the total doubles, triples, and home runs for each team.</p>
+<pre class="r"><code>stackeddata &lt;- softball %&gt;% 
+  pivot_longer(cols = c(&quot;2B&quot;, &quot;3B&quot;, &quot;HR&quot;), names_to=&quot;Type&quot;, values_to=&quot;Total&quot;) 
+
+ggplot(stackeddata, aes(x=reorder(Team, Total), weight=Total, fill=Type)) + 
+  geom_bar() + 
+  coord_flip() +
+  labs(
+    title= &quot;Nebraska is a close second, right behind Northwestern&quot;,
+    subtitle= &quot;The teams I had my eye from their hitting percentage are in the top five.&quot;,
+    caption= &quot;Source: Big 10 School 2021 Softball Stats | By Reagen Schulenberg&quot;, x=&quot;Totals&quot;, y=&quot;Team&quot;) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10)) </code></pre>
+<p><img src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Although Nebraska had lots of peaks and valleys when it came to their hitting percentage, they come out second when it comes to their totals in hitting this season. I then notice that Northwestern comes out on top, with Illinois, Michigan, and Minnesota following close behind in third through sixth.
+I see Penn State at the bottom again - which isn’t a surprise based on their hitting percentage.
+Minnesota has the most home runs, but you can’t always win games just by hitting bombs.
+So now, for someone who has a pretty average hitting percentage based on the national average, stands at the top of this graph. Based on this, I would say that the more steady your batting average is, the more likely you will to have higher totals in overall hits.</p>
+<p>A pitcher is a vital role in a softball. They control pitching to the other team. Let’s look at how pitching as affected these Big 10 teams this season.</p>
+<pre class="r"><code>pstats &lt;- pitching %&gt;%
+  group_by(Team) %&gt;%
+  summarize(
+    AvgERA = mean(ERA), 
+    sumSO = sum(SO),
+    sumHits = sum(H))
+
+ggplot() + 
+  geom_point(
+    data=pstats, 
+    aes(x=sumSO, y=sumHits, size=AvgERA)) +
+geom_text_repel(data=pstats, aes(x=sumSO, y=sumHits, label=Team)) +
+    scale_size(range = c(1, 6), name=&quot;AVG ERA&quot;) +
+  labs(
+    title= &quot;Michigan is a huge outlier&quot;,
+    subtitle= &quot;Michigan has a ton of strikeouts, not a lot of hits, and only give up about one earned runs per game. \n (Ohio State, Minnesota, &amp; Iowa not included)&quot;,
+    caption= &quot;Source: Big 10 School 2021 Softball Stats | By Reagen Schulenberg&quot;, x=&quot;Total Strikeouts&quot;, y=&quot;Total Hits&quot;) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 8), 
+    plot.subtitle = element_text(size=10))</code></pre>
+<p><img src="/2021/04/23/which-big-10-softball-team-is-the-best-in-the-2021-season/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>When I made this graph and it spit out the output, my eyes went directly to Michigan. They are obviously a huge outlier when it comes to pitching. They pitch a TON of strikeouts, almost 100 more than any other Big 10 Team. But, you notice that they don’t have a ton of hits compared to the rest of the Big 10. Lastly, their dot is small meaning that they only allow one earned run per game.</p>
+<p>I notice that Nebraska falls somehwere in the middle, but closer to the left side of the graph. Two teams that I’ve been keeping an eye on, Northwestern and Illinois, are both in the center of the graph meaning their total hits and total strikeouts are about 50/50. Not to mention that the size of their dot is fairly small, meaning that their pitchers don’t give up very many runs.</p>
+<p>My eye still remains on Northwestern, Illinois, and Michigan.</p>
+<p>Lastly, let’s look at fielding.</p>
+<p>Errors are huge when it comes to fielding. You can’t expect to have a great team and have a ton of fielding errors. So I wanted to look at the Big 10 teams who have less than 25 errors on the season.</p>
+<pre class="r"><code>tabledata &lt;- fielding %&gt;%
+  select(Team, Wins, Losses, E, `FLD%`) %&gt;%
+  arrange(desc(`FLD%`)) %&gt;%
+  filter(E &lt;= 25)
+
+tabledata %&gt;%
+gt() %&gt;%
+  tab_header(
+    title = &quot;Northwestern still at the top - Michigan right behind&quot;,
+    subtitle = &quot;Michigan and Northwestern have the same number of wins and errors on the 2021 season.&quot;
+  ) %&gt;% 
+  tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;title&quot;)
+  ) %&gt;% 
+  tab_style(
+    style = cell_text(color = &quot;black&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;subtitle&quot;)
+  ) %&gt;%
+  tab_source_note(
+    source_note = &quot;By Reagen Schulenberg&quot;
+  ) %&gt;%
+  tab_source_note(
+    source_note = md(&quot;Source: Big 10 School&#39;s Softball 2021 Statistics&quot;)) %&gt;%
+  tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;),
+    locations = cells_body(
+      columns = vars(Team))) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;red&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Nebraska&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;purple&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Northwestern&quot;)) %&gt;%
+  opt_row_striping() %&gt;% 
+  opt_table_lines(&quot;none&quot;) %&gt;% 
+  tab_style(
+    style = cell_borders(sides = c(&quot;top&quot;, &quot;bottom&quot;), 
+      color = &quot;grey&quot;, weight = px(1)),
+    locations = cells_column_labels(everything()))</code></pre>
+<pre><code>## Warning: The `.dots` argument of `group_by()` is deprecated as of dplyr 1.0.0.</code></pre>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#hxmdrnatuq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: none;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#hxmdrnatuq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#hxmdrnatuq .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#hxmdrnatuq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#hxmdrnatuq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#hxmdrnatuq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#hxmdrnatuq .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#hxmdrnatuq .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#hxmdrnatuq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#hxmdrnatuq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#hxmdrnatuq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#hxmdrnatuq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#hxmdrnatuq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#hxmdrnatuq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#hxmdrnatuq .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#hxmdrnatuq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#hxmdrnatuq .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#hxmdrnatuq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#hxmdrnatuq .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#hxmdrnatuq .gt_left {
+  text-align: left;
+}
+
+#hxmdrnatuq .gt_center {
+  text-align: center;
+}
+
+#hxmdrnatuq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#hxmdrnatuq .gt_font_normal {
+  font-weight: normal;
+}
+
+#hxmdrnatuq .gt_font_bold {
+  font-weight: bold;
+}
+
+#hxmdrnatuq .gt_font_italic {
+  font-style: italic;
+}
+
+#hxmdrnatuq .gt_super {
+  font-size: 65%;
+}
+
+#hxmdrnatuq .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="hxmdrnatuq" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style="color: black; text-align: left; font-weight: bold;">Northwestern still at the top - Michigan right behind</th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: black; text-align: left;">Michigan and Northwestern have the same number of wins and errors on the 2021 season.</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Team</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Wins</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Losses</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">E</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">FLD%</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #A020F0;">Northwestern</td>
+      <td class="gt_row gt_right" style="background-color: #A020F0; color: white;">21</td>
+      <td class="gt_row gt_right" style="background-color: #A020F0; color: white;">7</td>
+      <td class="gt_row gt_right" style="background-color: #A020F0; color: white;">13</td>
+      <td class="gt_row gt_right" style="background-color: #A020F0; color: white;">0.983</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Michigan</td>
+      <td class="gt_row gt_right gt_striped">21</td>
+      <td class="gt_row gt_right gt_striped">4</td>
+      <td class="gt_row gt_right gt_striped">13</td>
+      <td class="gt_row gt_right gt_striped">0.980</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Wisconsin</td>
+      <td class="gt_row gt_right">12</td>
+      <td class="gt_row gt_right">16</td>
+      <td class="gt_row gt_right">21</td>
+      <td class="gt_row gt_right">0.975</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: white; font-weight: bold; background-color: #FF0000;">Nebraska</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">15</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">13</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">22</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">0.973</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Iowa</td>
+      <td class="gt_row gt_right">14</td>
+      <td class="gt_row gt_right">10</td>
+      <td class="gt_row gt_right">23</td>
+      <td class="gt_row gt_right">0.973</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Ohio State</td>
+      <td class="gt_row gt_right gt_striped">13</td>
+      <td class="gt_row gt_right gt_striped">9</td>
+      <td class="gt_row gt_right gt_striped">23</td>
+      <td class="gt_row gt_right gt_striped">0.971</td>
+    </tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5">By Reagen Schulenberg</td>
+    </tr>
+    <tr>
+      <td class="gt_sourcenote" colspan="5">Source: Big 10 School's Softball 2021 Statistics</td>
+    </tr>
+  </tfoot>
+  
+</table></div>
+<p>Nebraska falls in the middle, yet again. My top guesses were that I would see Northwestern, Michigan, and Illinois at the top of this table. However, I see that Illinois isn’t even on this table, meaning that they make too many errors.
+So, that leaves me with Michigan and Northwestern still fighting for the top. Coincidentally, they have the same number of wins. Northwestern’s hitting percentage is only higher by 0.003 and they also have the same number of fielding errors.</p>
+<p>To take an ending look at these top two teams:</p>
+<p>Northwestern had the highest total number of hits overall. Their pitchers throw an average amount of strikeouts along with overall hits. Their average ERA circle was decently small, meaning that on average, they don’t give up many runs. Finally, they’re at the top of the fielding table, with the highest fielding percentage and lowest number of errors.</p>
+<p>Michigan’s batting average per game is around the national average line or above. They ranked fourth out of all the Big 10 teams in the total number of hits. They were a huge outlier when it comes to their pitching. Their dot was the smallest on the graph, and way far right, meaning that they strikeout a lot of batters, but don’t have that many hits. They trail Northwestern barley in their fielding percentage and have the same amount of errors.</p>
+<p>I really do want to crown a winner, but I almost feel like the race is too close. I find too many pros and compare them to cons to crown only one winner. In Northwestern and Michigan’s series played April 23-25, they split the series.</p>
+<p>Although their isn’t a Big 10 tournament this 2021 season, I feel like the Big 10 teams have battled it out with one another over the course of the season. I wish there was a tournament to crown a winner for us, but unfortunately that is not the case. I feel like these two teams are certainly the best in the Big 10 this season, with a winner not certainly that clear.</p>
+<p>But if I did have to pick one, I’ve never been a huge fan of Michigan, so… Northwestern it is!</p>
 
     </div>
   </article>
@@ -95,7 +641,22 @@
     </div>
     
 
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
     
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
 
     
   </body>
